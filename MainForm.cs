@@ -111,8 +111,14 @@ namespace COM5113_Assignment_WinForm
 
             if (!success)
             {
-                MessageBox.Show("No path found.");
                 foundPath = null;
+
+                // ? If the algorithm provides a message, display it
+                if (pathfinder is Dijkstra d && !string.IsNullOrEmpty(d.LastErrorMessage))
+                    MessageBox.Show(d.LastErrorMessage);
+                else
+                    MessageBox.Show("No path found.");
+                    return;
             }
             else
             {

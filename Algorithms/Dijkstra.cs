@@ -6,8 +6,13 @@ namespace COM5113_Assignment_WinForm.Algorithms
 {
     internal class Dijkstra : PathFinderInterface
     {
+
+        public string LastErrorMessage { get; private set; } = "";
+
         public bool FindPath(int[,] map, Coord start, Coord goal, ref LinkedList<Coord> path)
         {
+            LastErrorMessage = ""; // reset message each run
+
             var open = new PriorityQueue<SearchNode, int>();
             var closed = new HashSet<(int, int)>();
 
@@ -17,20 +22,24 @@ namespace COM5113_Assignment_WinForm.Algorithms
             {
                 var current = open.Dequeue();
 
-                // Check if we reached the goal
+                // if the goal is reached
                 if (current.Position.Equals(goal))
                 {
-                    // backtrack to build path
                     path = SearchUtilities.buildPathList(current);
                     return true;
                 }
 
-                // mark current as closed
+                // Mark this node as processed
                 closed.Add((current.Position.Row, current.Position.Col));
 
                 foreach (var next in SearchUtilities.GetNeighbours(current.Position))
                 {
+                    // Skip walls and invalid tiles
                     if (!SearchUtilities.IsWalkable(map, next))
+                        continue;
+
+                    // Skip already processed nodes
+                    if (closed.Contains((next.Row, next.Col)))
                         continue;
 
                     int cost = current.CostFromStart + map[next.Row, next.Col];
@@ -43,7 +52,9 @@ namespace COM5113_Assignment_WinForm.Algorithms
                     open.Enqueue(node, cost);
                 }
             }
-            // No path found = return false
+
+            LastErrorMessage = "no path found.";
+
             path = new LinkedList<Coord>();
             return false;
         }
